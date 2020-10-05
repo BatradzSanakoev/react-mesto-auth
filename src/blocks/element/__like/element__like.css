@@ -1,0 +1,19 @@
+@import url('./_liked/element__like_liked.css');
+
+.element__like {
+  background-color: #ffffff;
+  background-image: url(../../../images/like.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 100%;
+  min-height: 19px;
+  border: none;
+  padding: 0;
+  transition: .7s ease;
+}
+
+.element__like:hover {
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity .7s ease;
+}

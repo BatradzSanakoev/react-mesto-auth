@@ -1,0 +1,21 @@
+@import url('./_hidden/element__del_hidden.css');
+
+.element__del {
+  position: absolute;
+  top: 18px;
+  right: 15px;
+  z-index: 1;
+  transition: .7s ease;
+}
+
+.element__del:hover {
+  cursor: pointer;
+  opacity: .6;
+  transition: opacity .7s ease;
+}
+
+@media screen and (min-width: 425px) and (max-width: 600px) {
+  .element__del {
+    min-width: 25px;
+  }
+}

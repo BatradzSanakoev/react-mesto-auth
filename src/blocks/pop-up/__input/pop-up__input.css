@@ -1,0 +1,29 @@
+@import url('./_edit-name/pop-up__input_edit-name.css');
+@import url('./_edit-desc/pop-up__input_edit-desc.css');
+@import url('./_add-name/pop-up__input_add-name.css');
+@import url('./_add-url/pop-up__input_add-url.css');
+@import url('./_type-error/pop-up__input_type-error.css');
+
+.pop-up__input {
+  border: none;
+  width: 100%;
+  height: 27px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+  font-size: 14px;
+  line-height: 17px;
+  color: #000000;
+}
+
+@media screen and (min-width: 425px) and (max-width: 767px) {
+  .pop-up__input {
+    font-size: calc((100vw - 26.5rem)/(48 - 26.5) * (1.1 - .8) + .8rem);
+  }
+}
+
+@media screen and (min-width: 320px) and (max-width: 424px) {
+  .pop-up__input {
+    font-size: 12px;
+    padding-bottom: 5px;
+  }
+}

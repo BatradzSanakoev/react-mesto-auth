@@ -1,0 +1,21 @@
+@import url('./__photo/element__photo.css');
+@import url('./__bottom/element__bottom.css');
+@import url('./__name/element__name.css');
+@import url('./__likes/element__likes.css');
+@import url('./__like-count/element__like-count.css');
+@import url('./__like/element__like.css');
+@import url('./__icon/element__icon.css');
+@import url('./__del/element__del.css');
+@import url('./__container/element__container.css');
+
+.element {
+  position: relative;
+  width: 100%;
+  min-height: 361px;
+}
+
+@media screen and (min-width: 601px) and (max-width: 767px) {
+  .element {
+    min-height: 261px;
+  }
+}
