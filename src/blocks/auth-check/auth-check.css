@@ -1,0 +1,14 @@
+@import url('./__text/auth-check__text.css');
+@import url('./__img/auth-check__img.css');
+
+.auth-check {
+    width: 100%;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 60px 36px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}

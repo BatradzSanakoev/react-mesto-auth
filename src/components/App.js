@@ -1,4 +1,6 @@
 import React from 'react';
+import { Switch, Route, Redirect, useHistory } from 'react-router-dom';
+import { useLocation } from 'react-location';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -10,6 +12,12 @@ import CurrentUserContext from '../contexts/CurrentUserContext';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import Login from './Login';
+import Register from './Register';
+import ProtectedRoute from './ProtectedRoute';
+import InfoToolTip from './InfoTooltip';
+import * as Auth from '../Auth';
+import Page from './Page';
 
 function App() {
 
@@ -20,6 +28,15 @@ function App() {
   const [isDelPopupOpen, setIsDelPopupOpen] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
+
+  ////////////////////// 14 спринт
+  const escape = require('escape-html');
+  const history = useHistory();
+  const [loggedIn, setLoggedIn] = React.useState(false);
+  const [userData, setUserData] = React.useState('');
+  const [message, setMessage] = React.useState('');
+  const [isInfoToolOpen, setIsInfoToolOpen] = React.useState(false);
+  ////////////////////////////
 
   //Вызов эффекта загрузки данных пользователя
   React.useEffect(() => {
@@ -81,6 +98,7 @@ function App() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setSelectedCard({ isOpen: false });
+    setIsInfoToolOpen(false);
   }
 
   //Обработчик состояния попапа открытого изображения
@@ -119,26 +137,100 @@ function App() {
     closeAllPopups();
   }
 
+  ///////////////////////////////////////// 14 спринт
+
+  function tokenCheck() {
+    let token = localStorage.getItem('token');
+    if (token) {
+      Auth.getContent(token)
+        .then((res) => {
+          if (res) {
+            setLoggedIn(true);
+            setUserData(res.data.email);
+            history.push('/');
+          } else {
+            setMessage('Что-то пошло не так! Попробуйте ещё раз.');
+            onInfoTooltip();
+          }
+        })
+        .catch(err => console.log(err));
+    }
+  }
+
+  React.useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  function handleRegister(email, password) {
+    return Auth.register(escape(email), escape(password))
+      .then((res) => {
+        if (res.statusCode !== 400) {
+          setMessage('Вы успешно зарегистрировались!');
+          history.push('/sign-in');
+          onInfoTooltip();
+        } else {
+          setMessage('Что-то пошло не так! Попробуйте ещё раз.');
+          onInfoTooltip();
+        }
+      });
+  }
+
+  function handleLogin(email, password) {
+    return Auth.authorize(escape(email), escape(password))
+      .then((data) => {
+        if (!data.message) {
+          Auth.getContent(data.token)
+            .then((res) => {
+              setUserData(res.data.email);
+            });
+          setMessage('Вы успешно вошли!');
+          setLoggedIn(true);
+          onInfoTooltip();
+        } else {
+          setMessage('Что-то пошло не так! Попробуйте ещё раз.');
+          onInfoTooltip();
+        }
+      });
+  }
+
+  function signOut() {
+    setLoggedIn(false);
+    setUserData('');
+    localStorage.removeItem('token');
+    history.push('/sign-in');
+  }
+
+  function onInfoTooltip() {
+    setIsInfoToolOpen(true);
+  }
+
+  ///////////////////////////////////////////////////
   return (
     <CurrentUserContext.Provider value={currentUser}>
+
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
-
       <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
-
-      <PopupWithForm name="delete" title={'Вы уверены?'} isOpen={isDelPopupOpen} onClose={closeAllPopups} buttonName={'Да'}>
-      </PopupWithForm>
-
+      <PopupWithForm name='delete' title={'Вы уверены?'} isOpen={isDelPopupOpen} onClose={closeAllPopups} buttonName={'Да'} />
       <ImagePopup cardLink={selectedCard.link} cardName={selectedCard.name} onClose={closeAllPopups} isOpen={selectedCard.isOpen} />
+      <InfoToolTip isOpen={isInfoToolOpen} onClose={closeAllPopups} loggedIn={loggedIn} text={message} />
 
-      <div className="page">
-        <Header />
-        <Main onEditProfile={onEditProfile} onAddPlace={onAddPlace} onEditAvatar={onEditAvatar} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
-        <Footer />
+      <div className='page'>
+        <Switch>
+          <ProtectedRoute exact path='/' loggedIn={loggedIn} component={Page} onEditProfile={onEditProfile} onAddPlace={onAddPlace} onEditAvatar={onEditAvatar} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} userData={userData} signOut={signOut} />
+          <Route path='/sign-up'>
+            <Register handleRegister={handleRegister} />
+          </Route>
+          <Route path='/sign-in'>
+            <Login handleLogin={handleLogin} />
+          </Route>
+          <Route>
+            {<Redirect to={`${loggedIn ? '/' : '/sign-in'}`} />}
+          </Route>
+        </Switch>
       </div>
-    </CurrentUserContext.Provider>
 
+    </CurrentUserContext.Provider>
   );
 }
 

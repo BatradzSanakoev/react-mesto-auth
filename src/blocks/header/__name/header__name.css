@@ -1,0 +1,14 @@
+.header__name {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: normal;
+    line-height: 22px;
+    text-align: right;
+    transition: .7s ease;
+}
+
+.header__name:hover {
+    color: #cccccc;
+    transition: .7s ease;
+}
