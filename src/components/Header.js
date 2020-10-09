@@ -10,7 +10,7 @@ function Header({ headerName, headerUser, loggedIn, signOut }) {
                 <p className='header__user'>{headerUser}</p>
                 <p className='header__out' onClick={signOut}>Выйти</p>
             </div>            
-            <Link to={`${headerName === 'Регистрация' ? '/sign-up' : 'sign-in'}`} className={`${loggedIn ? 'header__status' : 'header__name'}`}>{headerName}</Link>
+            <Link to={`${headerName === 'Регистрация' ? '/sign-up' : '/sign-in'}`} className={`${loggedIn ? 'header__status' : 'header__name'}`}>{headerName}</Link>
         </header>
     )
 }

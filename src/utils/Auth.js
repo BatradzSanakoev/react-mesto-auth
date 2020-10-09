@@ -9,12 +9,9 @@ export const register = (email, password) => {
         body: JSON.stringify({ email, password })
     })
         .then((res) => {
-            return res.json();
-        })
-        .then((data) => {
-            return data;
-        })
-        .catch((err) => console.log(err + 'in Register'));
+            if (res.ok) return res.json();
+            else return Promise.reject(res.statusText);
+        });
 };
 
 export const authorize = (email, password) => {
@@ -26,17 +23,15 @@ export const authorize = (email, password) => {
         body: JSON.stringify({ email, password })
     })
         .then((res) => {
-            return res.json();
+            if (res.ok) return res.json();
+            else return Promise.reject(res.statusText);
         })
         .then((data) => {
-            if (data.message !== 'Incorrect email address or password') {
+            if (data.token) {
                 localStorage.setItem('token', data.token);
                 return data;
-            } else {
-                return data;
             }
-        })
-        .catch((err) => console.log(err));
+        });
 };
 
 export const getContent = (token) => {
@@ -48,6 +43,9 @@ export const getContent = (token) => {
             'Authorization': `Bearer ${token}`
         }
     })
-        .then((res) => res.json())
+        .then((res) => {
+            if (res.ok) return res.json();
+            else return Promise.reject(res.status);
+        })
         .then((data) => data);
 };

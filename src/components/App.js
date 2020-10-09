@@ -16,8 +16,10 @@ import Login from './Login';
 import Register from './Register';
 import ProtectedRoute from './ProtectedRoute';
 import InfoToolTip from './InfoTooltip';
-import * as Auth from '../Auth';
+import * as Auth from '../utils/Auth';
 import Page from './Page';
+import CheckImg from '../images/check.png';
+import UnCheckImg from '../images/uncheck.png';
 
 function App() {
 
@@ -33,9 +35,11 @@ function App() {
   const escape = require('escape-html');
   const history = useHistory();
   const [loggedIn, setLoggedIn] = React.useState(false);
+  // const [regOn, setRegOn] = React.useState(false);
   const [userData, setUserData] = React.useState('');
-  const [message, setMessage] = React.useState('');
+  // const [message, setMessage] = React.useState('');
   const [isInfoToolOpen, setIsInfoToolOpen] = React.useState(false);
+  const [forInfoTool, setForInfoTool] = React.useState({});
   ////////////////////////////
 
   //Вызов эффекта загрузки данных пользователя
@@ -149,7 +153,7 @@ function App() {
             setUserData(res.data.email);
             history.push('/');
           } else {
-            setMessage('Что-то пошло не так! Попробуйте ещё раз.');
+            setForInfoTool({ message: 'Что-то пошло не так! Попробуйте ещё раз.', icon: UnCheckImg });
             onInfoTooltip();
           }
         })
@@ -162,35 +166,33 @@ function App() {
   }, []);
 
   function handleRegister(email, password) {
-    return Auth.register(escape(email), escape(password))
-      .then((res) => {
-        if (res.statusCode !== 400) {
-          setMessage('Вы успешно зарегистрировались!');
-          history.push('/sign-in');
-          onInfoTooltip();
-        } else {
-          setMessage('Что-то пошло не так! Попробуйте ещё раз.');
-          onInfoTooltip();
-        }
-      });
+    Auth.register(escape(email), escape(password))
+      .then(() => {
+        setForInfoTool({ message: 'Вы успешно зарегистрировались!', icon: CheckImg });
+        history.push('/sign-in');
+      })
+      .catch((err) => setForInfoTool({ message: `Что-то пошло не так! Попробуйте ещё раз. (${err})`, icon: UnCheckImg }));
+
+    onInfoTooltip();
   }
 
   function handleLogin(email, password) {
-    return Auth.authorize(escape(email), escape(password))
+    Auth.authorize(escape(email), escape(password))
       .then((data) => {
-        if (!data.message) {
-          Auth.getContent(data.token)
-            .then((res) => {
-              setUserData(res.data.email);
-            });
-          setMessage('Вы успешно вошли!');
-          setLoggedIn(true);
-          onInfoTooltip();
-        } else {
-          setMessage('Что-то пошло не так! Попробуйте ещё раз.');
-          onInfoTooltip();
-        }
-      });
+
+        Auth.getContent(data.token)
+          .then((res) => {
+            setUserData(res.data.email);
+          })
+          .catch((err) => setForInfoTool({ message: `Что-то пошло не так! Попробуйте ещё раз. (${err})`, icon: UnCheckImg }));
+
+        setForInfoTool({ message: 'Вы успешно вошли!', icon: CheckImg });
+        setLoggedIn(true);
+        history.push('/');
+      })
+      .catch((err) => setForInfoTool({ message: `Что-то пошло не так! Попробуйте ещё раз. (${err})`, icon: UnCheckImg }));
+
+    onInfoTooltip();
   }
 
   function signOut() {
@@ -205,6 +207,7 @@ function App() {
   }
 
   ///////////////////////////////////////////////////
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
 
@@ -213,7 +216,7 @@ function App() {
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit} />
       <PopupWithForm name='delete' title={'Вы уверены?'} isOpen={isDelPopupOpen} onClose={closeAllPopups} buttonName={'Да'} />
       <ImagePopup cardLink={selectedCard.link} cardName={selectedCard.name} onClose={closeAllPopups} isOpen={selectedCard.isOpen} />
-      <InfoToolTip isOpen={isInfoToolOpen} onClose={closeAllPopups} loggedIn={loggedIn} text={message} />
+      <InfoToolTip isOpen={isInfoToolOpen} onClose={closeAllPopups} text={forInfoTool.message} icon={forInfoTool.icon} />
 
       <div className='page'>
         <Switch>
