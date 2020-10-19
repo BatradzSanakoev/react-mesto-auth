@@ -30,7 +30,7 @@ function App() {
   const [isDelPopupOpen, setIsDelPopupOpen] = React.useState(false);
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
-
+  console.log(isEditProfilePopupOpen);
   ////////////////////// 14 спринт
   const escape = require('escape-html');
   const history = useHistory();
